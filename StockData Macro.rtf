@@ -1,0 +1,148 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \
+Sub StockData()\
+    \
+    Dim i As Integer\
+    For i = 1 To 4\
+     \
+        Dim current As Worksheet\
+        Set current = Worksheets("Q" & i)\
+        \
+        AddHeaders current\
+        StockSummary current\
+        ChangeSummary current\
+        current.Columns("A:T").AutoFit\
+    \
+    Next i\
+    \
+End Sub\
+\
+\
+Function AddHeaders(ws As Worksheet)\
+\
+ws.Cells(1, 9).Value = "Ticker"\
+ws.Cells(1, 10).Value = "Quarterly Change"\
+ws.Cells(1, 11).Value = "Percent Change"\
+ws.Cells(1, 12).Value = "Total Stock Volume"\
+ws.Cells(1, 16).Value = "Ticker"\
+ws.Cells(1, 17).Value = "Value"\
+ws.Cells(2, 15).Value = "Greatest % Increase"\
+ws.Cells(3, 15).Value = "Greatest % Decrease"\
+ws.Cells(4, 15).Value = "Greatest Total Volume"\
+\
+End Function\
+\
+Function StockSummary(ws As Worksheet)\
+\
+Dim printRow As Double\
+printRow = 2\
+\
+Dim ticker As String\
+ticker = ws.Cells(2, 1).Value\
+\
+Dim startPrice As Double\
+startPrice = ws.Cells(2, 3).Value\
+\
+Dim total As Double\
+total = 0\
+\
+Dim i As Double\
+i = 2\
+While ws.Cells(i, 1).Value <> ""\
+    \
+    If ws.Cells(i, 1) = ticker Then\
+        total = total + ws.Cells(i, 7).Value\
+    Else\
+        ' Insert Ticker\
+        ws.Cells(printRow, 9).Value = ticker\
+        \
+        ' Insert Quarterly Change\
+        Dim quartChange As Double\
+        quartChange = ws.Cells(i - 1, 6).Value - startPrice\
+        ws.Cells(printRow, 10).Value = quartChange\
+            If quartChange > 0 Then\
+                ws.Cells(printRow, 10).Interior.ColorIndex = 4\
+            ElseIf quartChange < 0 Then\
+                ws.Cells(printRow, 10).Interior.ColorIndex = 3\
+            End If\
+         \
+        ' Insert Percent Change\
+        \
+        Dim percentChange As Double\
+        percentChange = (ws.Cells(i - 1, 6).Value / startPrice) - 1\
+        ws.Cells(printRow, 11).Value = Format(percentChange * 100, "0.00") & "%"\
+        \
+        ' Insert Total\
+        ws.Cells(printRow, 12).Value = total\
+        \
+        \
+        ' Reset For Next Ticker\
+        ticker = ws.Cells(i, 1).Value\
+        startPrice = ws.Cells(i, 3).Value\
+        total = ws.Cells(i, 7).Value\
+        printRow = printRow + 1\
+    End If\
+\
+i = i + 1\
+    \
+Wend\
+\
+\
+\
+End Function\
+\
+Function ChangeSummary(ws As Worksheet)\
+\
+Dim GreatestIncrease As Double\
+GreatestIncrease = 0\
+Dim GreatestIncreaseTicker As String\
+GreatestIncreaseTicker = ""\
+Dim GreatestDecrease As Double\
+GreatestDecrease = 0\
+Dim GreatestDecreaseTicker As String\
+GreatestDecreaseTicker = ""\
+Dim GreatestTotalVolume As Double\
+GreatestTotalVolume = 0\
+Dim GreatestTotalVolumeTicker As String\
+GreatestTotalVolumeTicker = ""\
+\
+Dim i As Integer\
+i = 2\
+While ws.Cells(i, 9).Value <> ""\
+\
+    If ws.Cells(i, 11).Value > GreatestIncrease Then\
+    GreatestIncrease = ws.Cells(i, 11).Value\
+    GreatestIncreaseTicker = ws.Cells(i, 9).Value\
+    End If\
+    \
+    If ws.Cells(i, 11).Value < GreatestDecrease Then\
+    GreatestDecrease = ws.Cells(i, 11).Value\
+    GreatestDecreaseTicker = ws.Cells(i, 9).Value\
+    End If\
+    \
+    If ws.Cells(i, 12).Value > GreatestTotalVolume Then\
+    GreatestTotalVolume = ws.Cells(i, 12).Value\
+    GreatestTotalVolumeTicker = ws.Cells(i, 9).Value\
+    End If\
+i = i + 1\
+Wend\
+\
+ws.Cells(2, 16).Value = GreatestIncreaseTicker\
+ws.Cells(3, 16).Value = GreatestDecreaseTicker\
+ws.Cells(4, 16).Value = GreatestTotalVolumeTicker\
+ws.Cells(2, 17).Value = Format(GreatestIncrease * 100, "0.00") & "%"\
+ws.Cells(3, 17).Value = Format(GreatestDecrease * 100, "0.00") & "%"\
+ws.Cells(4, 17).Value = GreatestTotalVolume\
+\
+End Function\
+\
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)\
+\
+End Sub\
+}
